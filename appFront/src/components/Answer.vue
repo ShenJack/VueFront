@@ -27,8 +27,8 @@
           </div>
 
           <div class="column">
-            <a :class="{'is-loading':buttonLoading20}" @click="startAnswer(20)" :disabled="disableStart20" class="button is-warning is-large"
-               style="margin-top: 5px">开始20%</a>
+            <a :class="{'is-loading':buttonLoading25}" @click="startAnswer(25)" :disabled="disableStart25" class="button is-warning is-large"
+               style="margin-top: 5px">开始25%</a>
             <a :class="{'is-loading':buttonLoading50}" @click="startAnswer(50)" :disabled="disableStart50" class="button is-warning is-large"
                style="margin-top: 5px">开始50%</a>
             <a :class="{'is-loading':buttonLoading100}" @click="startAnswer(100)" :disabled="disableStart100" class="button is-warning is-large"
@@ -97,7 +97,7 @@
         answerStatusText: '空闲中',
         answerLabel: 'is-light',
 
-        buttonLoading20:false,
+        buttonLoading25:false,
         buttonLoading50:false,
         buttonLoading100:false,
         buttonLoadingLeft:false,
@@ -108,8 +108,8 @@
       }
     },
     computed: {
-      disableStart20: function () {
-        return this.answerPercent > 80;
+      disableStart25: function () {
+        return this.answerPercent > 75;
       },
       disableStart50: function () {
         return this.answerPercent > 50;
@@ -144,8 +144,8 @@
       setSendingState: function (percent) {
         switch(percent){
           case 20:
-            if(!this.disableStart20){
-              this.buttonLoading20 = true;
+            if(!this.disableStart25){
+              this.buttonLoading25 = true;
             }
             break;
           case 50:
@@ -166,7 +166,7 @@
         }
       },
       cancelSendingState:function () {
-        this.buttonLoading20 = false;
+        this.buttonLoading25 = false;
         this.buttonLoading50 = false;
         this.buttonLoading100 = false;
         this.buttonLoadingLeft = false;

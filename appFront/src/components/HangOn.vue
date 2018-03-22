@@ -27,8 +27,8 @@
           </div>
 
           <div class="column">
-            <a v-bind:class="{'is-loading':buttonLoading20}" @click="startHangOn(20)" :disabled="disableStart20" class="button is-warning is-large"
-               style="margin-top: 5px">开始20%</a>
+            <a v-bind:class="{'is-loading':buttonLoading25}" @click="startHangOn(25)" :disabled="disableStart25" class="button is-warning is-large"
+               style="margin-top: 5px">开始25%</a>
             <a v-bind:class="{'is-loading':buttonLoading50}" @click="startHangOn(50)" id="start50" :disabled="disableStart50" class="button is-warning is-large"
                style="margin-top: 5px">开始50%</a>
             <a v-bind:class="{'is-loading':buttonLoading100}" @click="startHangOn(100)" id="start100" :disabled="disableStart100" class="button is-warning is-large"
@@ -96,15 +96,15 @@
             percent: '38',
           },
         ],
-        buttonLoading20:false,
+        buttonLoading25:false,
         buttonLoading50:false,
         buttonLoading100:false,
         buttonLoadingLeft:false,
       }
     },
     computed: {
-      disableStart20: function () {
-        return this.hangOnPercent > 80;
+      disableStart25: function () {
+        return this.hangOnPercent > 75;
       },
       disableStart50: function () {
         return this.hangOnPercent > 50;
@@ -144,9 +144,9 @@
       },
       setSendingState: function (percent) {
         switch(percent){
-          case 20:
-            if(!this.disableStart20){
-              this.buttonLoading20 = true;
+          case 25:
+            if(!this.disableStart25){
+              this.buttonLoading25 = true;
             }
             break;
           case 50:
@@ -170,8 +170,22 @@
         if (percent > 100 || percent < 0) {
 //        error
         }else {
-          this.setSendingState(percent)
+          this.setSendingState(percent);
           /*send request*/
+          this.$axios.post('/startHangOn/',require('qs').stringify({
+            percent:percent,
+          })).then(function (response) {
+//            alert(response.status);
+            if(response.status === 200){
+              outer.setStatus(STATUS_RUNNING);
+              outer.cancelSendingState();
+              alert(response.data)
+            }else {
+              outer.setStatus(STATUS_ERROR);
+              outer.cancelSendingState();
+              alert(response.data)
+            }
+          })
         }
       },
       processNotification:function (notification) {
