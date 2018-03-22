@@ -27,13 +27,17 @@
           </div>
 
           <div class="column">
-            <a v-bind:class="{'is-loading':buttonLoading25}" @click="startHangOn(25)" :disabled="disableStart25" class="button is-warning is-large"
+            <a v-bind:class="{'is-loading':buttonLoading25}" @click="startHangOn(disableStart25,25)" :disabled="disableStart25"
+               class="button is-warning is-large"
                style="margin-top: 5px">开始25%</a>
-            <a v-bind:class="{'is-loading':buttonLoading50}" @click="startHangOn(50)" id="start50" :disabled="disableStart50" class="button is-warning is-large"
+            <a v-bind:class="{'is-loading':buttonLoading50}" @click="startHangOn(disableStart50,50)" id="start50"
+               :disabled="disableStart50" class="button is-warning is-large"
                style="margin-top: 5px">开始50%</a>
-            <a v-bind:class="{'is-loading':buttonLoading100}" @click="startHangOn(100)" id="start100" :disabled="disableStart100" class="button is-warning is-large"
+            <a v-bind:class="{'is-loading':buttonLoading100}" @click="startHangOn(disableStart100,100)" id="start100"
+               :disabled="disableStart100" class="button is-warning is-large"
                style="margin-top: 5px">开始100%</a>
-            <a v-bind:class="{'is-loading':buttonLoadingLeft}" @click="startHangOn(0)" id="startLeft" :disabled="disableStartLeft" class="button is-warning is-large"
+            <a v-bind:class="{'is-loading':buttonLoadingLeft}" @click="startHangOn(disableStartLeft,0)" id="startLeft"
+               :disabled="disableStartLeft" class="button is-warning is-large"
                style="margin-top: 5px">开始剩下全部</a>
           </div>
 
@@ -74,20 +78,22 @@
   const TYPE_ERROR = 81;
   const TYPE_SUCCESS = 82;
   const TYPE_RUNTIME_ERROR = 83;
-//  const TYPE_
 
 
-  const STATUS_RUNNING = 0;
-  const STATUS_IDLE = 1;
-  const STATUS_SUCCESS = 2;
+  const STATUS_ING = "doing";
+  const STATUS_OK = "success";
+  const STATUS_ERROR = "error";
+  const STATUS_WAIT = "wait";
+
   export default {
     name: 'hangOn',
     data() {
       return {
         statusText: '空闲中',
-        hangOnPercent: 80,
-        hangOnMinutes: 670,
-        totalMinutes: 800,
+        hangOnPercent: 0,
+        hangOnMinutes: 0,
+        hangOnStatus: '',
+        totalMinutes: 500,
         statusLabel: 'is-light',
         logs: [
           {
@@ -96,10 +102,10 @@
             percent: '38',
           },
         ],
-        buttonLoading25:false,
-        buttonLoading50:false,
-        buttonLoading100:false,
-        buttonLoadingLeft:false,
+        buttonLoading25: false,
+        buttonLoading50: false,
+        buttonLoading100: false,
+        buttonLoadingLeft: false,
       }
     },
     computed: {
@@ -113,7 +119,7 @@
         return this.hangOnPercent > 0;
       },
       disableStartLeft: function () {
-        return this.hangOnPercent === STATUS_SUCCESS;
+        return this.hangOnStatus === STATUS_OK;
       }
     },
 
@@ -127,76 +133,91 @@
         this.logs.push(log)
       },
       setStatus: function (status) {
+        this.hangOnStatus = status;
         switch (status) {
-          case STATUS_RUNNING:
+          case STATUS_ING:
             this.statusText = '进行中';
             this.statusLabel = 'is-dark';
             break;
-          case STATUS_SUCCESS:
+          case STATUS_OK:
             this.statusText = '已完成';
             this.statusLabel = 'is-success';
             break;
-          case STATUS_IDLE:
+          case STATUS_WAIT:
             this.statusText = '空闲中';
             this.statusLabel = 'is-light';
+            break;
+          case STATUS_ERROR:
+            this.statusText = '错误';
+            this.statusLabel = 'is-danger';
             break;
         }
       },
       setSendingState: function (percent) {
-        switch(percent){
+        switch (percent) {
           case 25:
-            if(!this.disableStart25){
+            if (!this.disableStart25) {
               this.buttonLoading25 = true;
             }
             break;
           case 50:
-            if(!this.disableStart50){
+            if (!this.disableStart50) {
               this.buttonLoading50 = true;
             }
             break;
           case 100:
-            if(!this.disableStart100){
+            if (!this.disableStart100) {
               this.buttonLoading100 = true;
             }
             break;
           case 0:
-            if(!this.disableStartLeft){
+            if (!this.disableStartLeft) {
               this.buttonLoadingLeft = true;
             }
             break;
         }
       },
-      startHangOn: function (percent) {
-        if (percent > 100 || percent < 0) {
+      startHangOn: function (disale,percent) {
+        if(!disale){
+          {
+            if (percent > 100 || percent < 0) {
 //        error
-        }else {
-          this.setSendingState(percent);
-          /*send request*/
-          this.$axios.post('/startHangOn/',require('qs').stringify({
-            percent:percent,
-          })).then(function (response) {
+            } else {
+              this.setSendingState(percent);
+              /*send request*/
+              this.$axios.post('/startHangOn/', require('qs').stringify({
+                percent: percent,
+              })).then(function (response) {
 //            alert(response.status);
-            if(response.status === 200){
-              outer.setStatus(STATUS_RUNNING);
-              outer.cancelSendingState();
-              alert(response.data)
-            }else {
-              outer.setStatus(STATUS_ERROR);
-              outer.cancelSendingState();
-              alert(response.data)
+                if (response.status === 200) {
+                  outer.setStatus(STATUS_RUNNING);
+                  outer.cancelSendingState();
+                  alert(response.data)
+                } else {
+                  outer.setStatus(STATUS_ERROR);
+                  outer.cancelSendingState();
+                  alert(response.data)
+                }
+              })
             }
-          })
+          }
         }
       },
-      processNotification:function (notification) {
-        switch(notification.type){
+      processNotification: function (notification) {
+        switch (notification.type) {
 //          case notification
         }
+      },
+      setData: function (data) {
+        this.setStatus(data.hangOnStatus);
+        this.hangOnMinutes = data.timeAlready;
+        this.totalMinutes = data.timeNeed;
+        this.hangOnPercent = data.hangOnPercentage;
       }
     },
     created: function () {
       this.addLog();
-      this.setStatus(STATUS_IDLE)
+//      this.setStatus(STATUS_ERROR)
     },
 
   }

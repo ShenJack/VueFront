@@ -63,7 +63,13 @@
       },
       setComponents: function (data) {
         this.doAnswer = data.doAnswer;
+        if(this.doAnswer){
+          this.$refs.answerCard.setData(data)
+        }
         this.doHangOn = data.doHangOn;
+        if(this.doHangOn){
+          this.$refs.hangOnCard.setData(data)
+        }
       },
       initProfile() {
         const outer = this;
