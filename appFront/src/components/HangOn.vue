@@ -27,7 +27,8 @@
           </div>
 
           <div class="column">
-            <a v-bind:class="{'is-loading':buttonLoading25}" @click="startHangOn(disableStart25,25)" :disabled="disableStart25"
+            <a v-bind:class="{'is-loading':buttonLoading25}" @click="startHangOn(disableStart25,25)"
+               :disabled="disableStart25"
                class="button is-warning is-large"
                style="margin-top: 5px">开始25%</a>
             <a v-bind:class="{'is-loading':buttonLoading50}" @click="startHangOn(disableStart50,50)" id="start50"
@@ -125,12 +126,7 @@
 
     methods: {
       addLog: function (log) {
-        log = {
-          time: '12314',
-          content: 'kjnom',
-          percent: '49'
-        };
-        this.logs.push(log)
+        this.logs.unshift(log)
       },
       setStatus: function (status) {
         this.hangOnStatus = status;
@@ -177,8 +173,9 @@
             break;
         }
       },
-      startHangOn: function (disale,percent) {
-        if(!disale){
+      startHangOn: function (disale, percent) {
+        const outer = this;
+        if (!disale) {
           {
             if (percent > 100 || percent < 0) {
 //        error
@@ -190,7 +187,7 @@
               })).then(function (response) {
 //            alert(response.status);
                 if (response.status === 200) {
-                  outer.setStatus(STATUS_RUNNING);
+                  outer.setStatus(STATUS_ING);
                   outer.cancelSendingState();
                   alert(response.data)
                 } else {
@@ -202,6 +199,12 @@
             }
           }
         }
+      },
+      cancelSendingState: function () {
+        this.buttonLoading25 = false;
+        this.buttonLoading50 = false;
+        this.buttonLoading100 = false;
+        this.buttonLoadingLeft = false;
       },
       processNotification: function (notification) {
         switch (notification.type) {
@@ -216,7 +219,7 @@
       }
     },
     created: function () {
-      this.addLog();
+//      this.addLog();
 //      this.setStatus(STATUS_ERROR)
     },
 

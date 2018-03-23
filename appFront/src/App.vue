@@ -105,13 +105,15 @@
                 })
               }
               else if(content.task === TASK_HANGON){
-                outer.$refs.hangOnTask.addLog({
-                  time:content.time,
-                  content:content.content,
-                  percent:content.percent,
+                outer.$refs.hangOnCard.addLog({
+                  'time':content.time,
+                  'content':content.content,
+                  'percent':content.percent,
                 })
               }
               break;
+            case TYPE_NOTIFICATION:
+              alert(content)
           }
         };
         websocket.onclose = function () {

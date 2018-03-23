@@ -191,8 +191,8 @@
             })).then(function (response) {
 //            alert(response.status);
               if (response.status === 200) {
-                outer.setStatus(STATUS_RUNNING);
-                outer.cancelSendingState();
+                outer.setStatus(STATUS_ING);
+//                outer.cancelSendingState();
                 alert(response.data)
               } else {
                 outer.setStatus(STATUS_ERROR);
